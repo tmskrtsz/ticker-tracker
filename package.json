@@ -8,8 +8,8 @@
     "mongoose": "^5.0.9",
     "morgan": "^1.9.0",
     "node-binance-api": "^0.4.23",
-    "node-telegram-bot-api": "^0.30.0",
-    "now-env": "^3.0.4"
+    "now-env": "^3.0.4",
+    "telegraf": "^3.19.0"
   },
   "license": "MIT",
   "scripts": {
