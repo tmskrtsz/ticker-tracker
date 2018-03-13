@@ -1,0 +1,12 @@
+{
+  "alias": "https://ticker-tracker.now.sh",
+  "name": "ticker-tracker-backend",
+  "env": {
+    "BOT_URL": "https://ticker-tracker.now.sh",
+    "TELEGRAM_API": "@telegram-api",
+    "TELEGRAM_CHAT_ID": "@telegram-chat-id",
+    "BINANCE_API": "@binance-api",
+    "BINANCE_API_SECRET": "@binance-api-secret",
+    "MONGO_URI": "@mongo-uri"
+  }
+}
