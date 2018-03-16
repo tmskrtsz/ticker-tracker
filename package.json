@@ -3,11 +3,13 @@
   "dependencies": {
     "axios": "^0.18.0",
     "body-parser": "^1.18.2",
+    "coinmarketcap-api": "^1.0.1",
     "config": "^1.30.0",
     "express": "^4.16.2",
     "mongoose": "^5.0.9",
     "morgan": "^1.9.0",
     "node-binance-api": "^0.4.23",
+    "node-coinmarketcap": "^0.2.0",
     "now-env": "^3.0.4",
     "telegraf": "^3.19.0"
   },
@@ -17,5 +19,9 @@
     "dev": "nodemon index.js",
     "deploy": "now --public && now alias && now remove ticker-tracker-backend --yes --safe"
   },
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "devDependencies": {
+    "concurrently": "^3.5.1",
+    "localtunnel": "^1.8.3"
+  }
 }

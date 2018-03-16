@@ -12,17 +12,13 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(logger('dev'));
 
-const bot = require('./config/telegram.js');
-
 binance.options({
   APIKEY: config.get('BINANCE_API'),
   APISECRET: config.get('BINANCE_API_SECRET'),
   useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
 });
 
-app.post(`/hook`, (req, res) => {
-  bot.handleUpdate(req.body, res.sendStatus(200));
-});
+require('./bot');
 
 //-- Set up MongoDB
 const mongoDB = config.get('MONGO_URI');
@@ -35,13 +31,21 @@ mongoose.Promise = global.Promise;
 const db = mongoose.connection;
 
 app.get('/', (req, res) => {
-  res.redirect('https://t.me/TickerTracker_bot');
+  res.send('Hello World')
 });
 
-binance.prices('NANOETH', (error, ticker) => {
-  const message = `Price of Nano is: ${ticker.NANOETH} ETH`;
+if (!process.env.NODE_ENV) {
+  const localtunnel = require('localtunnel');
+  const options = {subdomain: 'tickertracker'}
 
-	console.log(message);
-});
+  const tunnel = localtunnel(port, options, (err, tunnel) => {
+    if (err) {
+      console.log(err);
+    }
+      tunnel.url
+      console.log(`LocalTunnel up at ${tunnel.url}`);
+  });
+
+}
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

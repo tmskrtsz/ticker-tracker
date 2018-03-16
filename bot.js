@@ -1,32 +1,65 @@
-const bot = require('./config/telegram');
+const TelegramBot = require('telegraf');
+const config = require('config');
+const binance = require('node-binance-api');
+const token = config.get('TELEGRAM_API');
 
-function getThreats(first_name, last_name) {
-  const threats = [
-    `Akkarsz verest, ${last_name}?`,
-    `Nagy barat szeretnel lenni a halallal?`,
-    `${first_name}, elment az eszed?`,
-    `${first_name} ${last_name} egy igazi szeleburdi`,
-    `${first_name}, Ne tüzeskedj, mert bepisilsz!`,
-    `Ne irjal tobbet, hátrakötöm a sarkadat!`,
-    `Vigyázz, mert ha csak melléd ütök is, a tűzoltók vágnak ki az ajtókeretből!`
-  ]
+// Telegram bot configuration
+const bot = new TelegramBot(token);
 
-  return threats[Math.floor(Math.random() * threats.length)];
-}
+const {
+  helloText,
+	helpText,
+	getSuggestions,
+	getFirstName,
+	getMessage,
+	greet } = require('./core/');
 
-const helloText = `👋 Welcome to the Ticker Tracker!`;
-// bot.on('message', (msg) => {
-//   if (msg.text.toString() === "/start") {
-//     bot.sendMessage(msg.chat.id, helloText);
-//   } else {
-//     console.log(msg.text);
-//     bot.sendMessage(msg.chat.id, getThreats(msg.from.first_name, msg.from.last_name));
-//   }
-// })
+const { getPrice, getSymbol } = require('./core/crypto');
 
-bot.command('start', (ctx) => ctx.reply(helloText));
-bot.command('setpair', (ctx) => {
-	ctx.reply('You selected setpair');
+bot.command('start', (ctx) => {
+  ctx.reply(greet(ctx));
+  ctx.reply(helloText);
+  ctx.reply('For a list of commands type /help');
 });
 
-bot.startWebhook(BOT_URL);
+bot.command('help', (ctx) => ctx.reply(helpText));
+
+bot.command('setpair', async (ctx) => {
+  const message = await getMessage('/setpair', ctx);
+
+  if (message != undefined) {
+    const cryptoPair = await message.split(', ', 2);
+    const tickers = await cryptoPair.join('');
+
+    if (cryptoPair.length < 2) {
+      ctx.reply('Beep-boop you didn\'t specify a second coin.');
+      return;
+    } else if (cryptoPair.length > 2) {
+      ctx.reply('Pair means 2 🙌, discarding the last coin.')
+    } else {
+      ctx.reply('Getting rates...');
+    }
+
+    const symbol = await getSymbol(cryptoPair[1]);
+    const result = await getPrice(cryptoPair[0], symbol);
+
+    const replyMsg = `1 ${cryptoPair[0]} = ${result[0][`price_${symbol.toLowerCase()}`]} ${cryptoPair[1]}`;
+
+    await ctx.reply(replyMsg);
+  } else {
+    ctx.reply('You didn\'t specify a crypto pair. Try /setpair ethereum, bitcoin');
+  }
+});
+
+bot.hears(['Hey', 'hey', 'hello', 'hi'], ctx => ctx.reply(`A ${ctx.message.text} to you too! 👋`));
+
+bot.on('text', (ctx) => {
+  const firstName = getFirstName(ctx);
+  ctx.reply(getSuggestions(firstName));
+});
+
+bot.catch((err) => {
+  console.log('Ooops', err)
+})
+
+bot.startPolling()
