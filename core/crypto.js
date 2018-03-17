@@ -30,9 +30,14 @@ async function testTicker(ticker) {
 
 async function getPrice(tickers) {
 	let result = [];
+	let priceIn = '';
 
 	if (Array.isArray(tickers)) {
-		const priceIn = await getSymbol(tickers[1]);
+		if (testFiat(tickers[1])) {
+			priceIn = tickers[1];
+		} else {
+			priceIn = await getSymbol(tickers[1]);
+		}
 
 		result = await cmc.getTicker({
 			currency: tickers[0],
@@ -64,7 +69,7 @@ async function getSymbol(ticker) {
 		}
 	} else {
 		// If the parameter matches a fiat in the list, return that
-		const symbol = fiatFilter[0];
+		const symbol = testFiat(ticker);
 		return symbol;
 	}
 }
