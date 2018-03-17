@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const bodyParser = require('body-parser');
 const logger = require('morgan');
-const binance = require('node-binance-api');
 const config = require('config');
 const mongoose = require('mongoose');
 
@@ -11,12 +10,6 @@ const port = config.get('PORT');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(logger('dev'));
-
-binance.options({
-  APIKEY: config.get('BINANCE_API'),
-  APISECRET: config.get('BINANCE_API_SECRET'),
-  useServerTime: true, // If you get timestamp errors, synchronize to server time at startup
-});
 
 require('./bot');
 
@@ -45,7 +38,6 @@ if (!process.env.NODE_ENV) {
       tunnel.url
       console.log(`LocalTunnel up at ${tunnel.url}`);
   });
-
 }
 
 app.listen(port, () => console.log(`Listening on port ${port}`));

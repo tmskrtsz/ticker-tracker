@@ -3,9 +3,9 @@ Any cryptocurrency as long as it's on Binance that is 🌚.`;
 
 const helpText = `Commands that you can use 💪
 /help - It's this command, oh how meta.
-/setpair - Set the cryptocurrency pair, for example, to get the price of Ethereum in Bitcoin, write ethereum, bitcoin.
-/settarget - Set the target of a specific crypto pair to watch.
-/getprice - Get the prices for all of the saved crypto pairs.`;
+/setpair - Save a crypto-crypto or crypto-fiat pair to keep track of which you can retrieve by running /watchlist.
+/watchlist - Retrieve your saved crypto pairs and their prices.
+/getprice - Get the price of the first coin in the second supplied one. For example, writing /getprice Nano, Bitcoin will return the price of Nano in Bitcoins. Works with fiat too, try /getprice Nano, eur.`;
 
 function getSuggestions(first_name) {
   const suggestions = [

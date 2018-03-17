@@ -1,6 +1,5 @@
 const TelegramBot = require('telegraf');
 const config = require('config');
-const binance = require('node-binance-api');
 const token = config.get('TELEGRAM_API');
 
 // Telegram bot configuration
@@ -14,7 +13,12 @@ const {
 	getMessage,
 	greet } = require('./core/');
 
-const { getPrice, getSymbol } = require('./core/crypto');
+const {
+  getPrice,
+  getSymbol,
+  testFiat,
+  testTicker
+  } = require('./core/crypto');
 
 bot.command('start', (ctx) => {
   ctx.reply(greet(ctx));
@@ -24,30 +28,35 @@ bot.command('start', (ctx) => {
 
 bot.command('help', (ctx) => ctx.reply(helpText));
 
-bot.command('setpair', async (ctx) => {
-  const message = await getMessage('/setpair', ctx);
+bot.command('getprice', async (ctx) => {
+  const message = await getMessage('/getprice', ctx);
 
   if (message != undefined) {
-    const cryptoPair = await message.split(', ', 2);
-    const tickers = await cryptoPair.join('');
+    let cryptoPair = new Array();
 
-    if (cryptoPair.length < 2) {
-      ctx.reply('Beep-boop you didn\'t specify a second coin.');
-      return;
-    } else if (cryptoPair.length > 2) {
-      ctx.reply('Pair means 2 🙌, discarding the last coin.')
+    if (message.indexOf(' ') <= 0) {
+      cryptoPair = message.split(',', 2);
     } else {
-      ctx.reply('Getting rates...');
+      cryptoPair = message.split(', ', 2);
     }
 
-    const symbol = await getSymbol(cryptoPair[1]);
-    const result = await getPrice(cryptoPair[0], symbol);
+    if (cryptoPair.length < 2) {
+      ctx.reply('⚠️ Beep-boop you didn\'t specify a second option.');
+      return;
+    }
 
-    const replyMsg = `1 ${cryptoPair[0]} = ${result[0][`price_${symbol.toLowerCase()}`]} ${cryptoPair[1]}`;
+    if (testFiat(cryptoPair[0])) {
+      ctx.reply('⚠️ You can only have fiat as the second option in the pair.');
+      return;
+    }
 
-    await ctx.reply(replyMsg);
+    ctx.reply('Getting rates...');
+
+    const result = await getPrice(cryptoPair);
+    ctx.reply(`1 ${result.priceFrom} = ${result.price} ${result.priceTo}`);
+
   } else {
-    ctx.reply('You didn\'t specify a crypto pair. Try /setpair ethereum, bitcoin');
+    ctx.reply('⚠️ You didn\'t specify a crypto pair. Try /getprice ethereum, bitcoin');
   }
 });
 
