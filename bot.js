@@ -6,7 +6,7 @@ const token = config.get('TELEGRAM_API');
 const bot = new TelegramBot(token);
 
 const {
-  helloText,
+	helloText,
 	helpText,
 	getSuggestions,
 	getFirstName,
@@ -14,61 +14,61 @@ const {
 	greet } = require('./core/');
 
 const {
-  getPrice,
-  getSymbol,
-  testFiat,
-  testTicker
-  } = require('./core/crypto');
+	getPrice,
+	getSymbol,
+	testFiat,
+	testTicker
+	} = require('./core/crypto');
 
 bot.command('start', (ctx) => {
-  ctx.reply(greet(ctx));
-  ctx.reply(helloText);
-  ctx.reply('For a list of commands type /help');
+	ctx.reply(greet(ctx));
+	ctx.reply(helloText);
+	ctx.reply('For a list of commands type /help');
 });
 
 bot.command('help', (ctx) => ctx.reply(helpText));
 
 bot.command('getprice', async (ctx) => {
-  const message = await getMessage('/getprice', ctx);
+	const message = await getMessage('/getprice', ctx);
 
-  if (message != undefined) {
-    let cryptoPair = new Array();
+	if (message != undefined) {
+		let cryptoPair = new Array();
 
-    if (message.indexOf(' ') <= 0) {
-      cryptoPair = message.split(',', 2);
-    } else {
-      cryptoPair = message.split(', ', 2);
-    }
+		if (message.indexOf(' ') <= 0) {
+			cryptoPair = message.split(',', 2);
+		} else {
+			cryptoPair = message.split(', ', 2);
+		}
 
-    if (cryptoPair.length < 2) {
-      ctx.reply('⚠️ Beep-boop you didn\'t specify a second option.');
-      return;
-    }
+		if (cryptoPair.length < 2) {
+			ctx.reply('⚠️ Beep-boop you didn\'t specify a second option.');
+			return;
+		}
 
-    if (testFiat(cryptoPair[0])) {
-      ctx.reply('⚠️ You can only have fiat as the second option in the pair.');
-      return;
-    }
+		if (testFiat(cryptoPair[0])) {
+			ctx.reply('⚠️ You can only have fiat as the second option in the pair.');
+			return;
+		}
 
-    ctx.reply('Getting rates...');
+		ctx.reply('Getting rates...');
 
-    const result = await getPrice(cryptoPair);
-    ctx.reply(`1 ${result.priceFrom} = ${result.price} ${result.priceTo}`);
+		const result = await getPrice(cryptoPair);
+		ctx.reply(`1 ${result.priceFrom} = ${result.price} ${result.priceTo}`);
 
-  } else {
-    ctx.reply('⚠️ You didn\'t specify a crypto pair. Try /getprice ethereum, bitcoin');
-  }
+	} else {
+		ctx.reply('⚠️ You didn\'t specify a crypto pair. Try /getprice ethereum, bitcoin');
+	}
 });
 
 bot.hears(['Hey', 'hey', 'hello', 'hi'], ctx => ctx.reply(`A ${ctx.message.text} to you too! 👋`));
 
 bot.on('text', (ctx) => {
-  const firstName = getFirstName(ctx);
-  ctx.reply(getSuggestions(firstName));
+	const firstName = getFirstName(ctx);
+	ctx.reply(getSuggestions(firstName));
 });
 
 bot.catch((err) => {
-  console.log('Ooops', err)
+	console.log('Ooops', err)
 })
 
 bot.startPolling()
