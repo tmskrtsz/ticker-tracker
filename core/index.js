@@ -1,5 +1,5 @@
 const helloText =`I'm TickerTracker bot and my only purpose is to give you alerts whenever a cryptocurrency of your choice reaches a set target.
-Any cryptocurrency as long as it's on Binance that is 🌚.`;
+Any cryptocurrency as long as it's on Coin Market Cap that is 🌚.`;
 
 const helpText = `Commands that you can use 💪
 /help - It's this command, oh how meta.

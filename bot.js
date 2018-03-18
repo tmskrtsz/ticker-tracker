@@ -14,6 +14,7 @@ const {
 	greet } = require('./core/');
 
 const {
+	getChange,
 	getPrice,
 	getSymbol,
 	testFiat,
@@ -50,10 +51,16 @@ bot.command('getprice', async (ctx) => {
 			return;
 		}
 
+		const result = await getPrice(cryptoPair);
+
+		if (!result) {
+			ctx.reply(`⚠️ Either ${cryptoPair[0]} or ${cryptoPair[1]} is incorrect`);
+			return;
+		}
+
 		ctx.reply('Getting rates...');
 
-		const result = await getPrice(cryptoPair);
-		ctx.reply(`1 ${result.priceFrom} = ${result.price} ${result.priceTo}`);
+		ctx.reply(`1 ${result.priceFrom} = ${result.price} ${result.priceTo}, ${getChange(result.change)}`);
 
 	} else {
 		ctx.reply('⚠️ You didn\'t specify a crypto pair. Try /getprice ethereum, bitcoin');
