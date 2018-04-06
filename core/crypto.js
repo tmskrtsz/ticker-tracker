@@ -46,14 +46,14 @@ async function getPrice(tickers) {
 
 		const resultObj = {...result[0]};
 		const price = resultObj[`price_${priceIn}`];
-
-		if (result.error || price === undefined) {
-			return false;
-		}
+		console.log(price)
+		// if (result.error || price === undefined) {
+		// 	return false;
+		// }
 
 		return {
 			priceFrom: resultObj.symbol,
-			price: price.toLowerCase(),
+			price: price.toLowerCase().toFixed(5),
 			priceTo: priceIn,
 			change: resultObj.percent_change_1h
 		}

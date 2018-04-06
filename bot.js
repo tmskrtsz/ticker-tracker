@@ -54,7 +54,7 @@ bot.command('getprice', async (ctx) => {
 		const result = await getPrice(cryptoPair);
 
 		if (!result) {
-			ctx.reply(`⚠️ Either ${cryptoPair[0]} or ${cryptoPair[1]} is incorrect`);
+			ctx.reply(`⚠️ Either "${cryptoPair[0]}" or "${cryptoPair[1]}" is incorrect`);
 			return;
 		}
 

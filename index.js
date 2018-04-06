@@ -34,6 +34,7 @@ if (!process.env.NODE_ENV) {
   const tunnel = localtunnel(port, options, (err, tunnel) => {
     if (err) {
       console.log(err);
+      tunnel();
     }
       tunnel.url
       console.log(`LocalTunnel up at ${tunnel.url}`);
