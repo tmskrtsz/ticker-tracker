@@ -1,5 +1,7 @@
 const CoinMarketCap = require('coinmarketcap-api');
 const cmc = new CoinMarketCap();
+const findCoin = require('../db/models/Coins.js');
+const Watchlist = require('../db/models/Watchlist.js');
 
 function testFiat(ticker) {
 	// Fiat values that are supported by CoinMarketCap
@@ -12,73 +14,27 @@ function testFiat(ticker) {
 	}
 }
 
-async function testTicker(ticker) {
-	const result = await cmc.getTicker({ currency:ticker });
+async function testTicker(coins) {
+	let result;
+	for (const i in coins) {
+		try {
+			result = await findCoin(coins[i]);
+		} catch(e) {
+			console.error(e);
+			return undefined;
+		}
+	}
 
-	if (result.error) {
-		return false
+	if (result === undefined || result.error) {
+		return undefined;
 	} else {
-		return true
+		return true;
 	}
 }
 
-async function getPrice(tickers) {
-	let result = [];
-	let priceIn = '';
-
-	// Add a dash to separate certain coin names like bitcoin cash
-	// In order to be usable with the CMC api
-	const newTickers = tickers.map((el, index) => {
-		return el.replace(' ', '-').toLowerCase();
-	})
-
-	if (Array.isArray(tickers)) {
-		if (testFiat(newTickers[1])) {
-			priceIn = newTickers[1];
-		} else {
-			priceIn = await getSymbol(newTickers[1]);
-		}
-
-		result = await cmc.getTicker({
-			currency: newTickers[0],
-			convert: priceIn
-		});
-
-		const resultObj = {...result[0]};
-		const price = resultObj[`price_${priceIn}`];
-		console.log(price)
-		// if (result.error || price === undefined) {
-		// 	return false;
-		// }
-
-		return {
-			priceFrom: resultObj.symbol,
-			price: price.toLowerCase().toFixed(5),
-			priceTo: priceIn,
-			change: resultObj.percent_change_1h
-		}
-	}
-}
-
-async function getSymbol(ticker) {
-	// The ticker is not fiat
-	if (!testFiat(ticker)) {
-		const symbol = await cmc.getTicker({ currency: ticker });
-
-		// The returned value is an error, the parameter has to be
-		// a CMC id such as 'bitcoin'
-		if (symbol.error) {
-			return symbol; // Return a json error from CMC
-		} else {
-			// Otherwise return the symbol for the id. BTC for bitcoin, f.e.
-			return symbol[0].symbol;
-		}
-	} else {
-		// If the parameter matches a fiat in the list, return that
-		const symbol = testFiat(ticker);
-		return symbol;
-	}
-}
+// async function getPrice(tickers) {
+// 	const ticker;
+// }
 
 function getChange(change) {
 	if (parseInt(change) >= 0) {
@@ -88,10 +44,30 @@ function getChange(change) {
 	}
 }
 
+async function savePair(chat_id, coin1, coin2) {
+	const [coin1Id] = await findCoin(coin1);
+	const [coin2Id] = await findCoin(coin2);
+
+	const entry = new Watchlist({
+		chat_id: chat_id,
+		coin_1: coin1Id.name,
+		coin_2: coin2Id.name
+	});
+
+	try {
+		await entry.save()
+		console.log(`${entry} was saved!`);
+		return `Cryptopair was saved!`;
+
+	} catch(e) {
+		console.error(`There was a problem: ${e}`)
+	}
+}
+
 module.exports = {
 	getChange,
-	getPrice,
-	getSymbol,
+	// getPrice,
 	testFiat,
-	testTicker
+	testTicker,
+	savePair
 }
