@@ -17,11 +17,13 @@ const {
 	getChange,
 	// getPrice,
 	testFiat,
-	testTicker,
-	savePair
+	testTicker
 	} = require('./core/crypto');
 
-const Watchlist = require('./db/models/Watchlist.js');
+const {
+	Watchlist,
+	savePair,
+	getWatchlist } = require('./db/models/Watchlist.js');
 
 bot.command('start', (ctx) => {
 	ctx.reply(greet(ctx));
@@ -66,12 +68,18 @@ bot.command('setpair', async (ctx) => {
 
 		try {
 			await savePair(ctx.chat.id, cryptoPair[0], cryptoPair[1]);
-			ctx.reply(`✅ Done! Hit /watchlist to view the price.`)
+			ctx.reply(`✅ Done! Hit /watchlist to retrieve your list.`)
 		} catch(e) {
 			ctx.reply('There was a problem');
 			console.error(e);
 		}
 	}
+});
+
+bot.command('watchlist', async (ctx) => {
+	const chatId = ctx.chat.id;
+
+	ctx.reply(await getWatchlist(chatId));
 });
 
 bot.command('getprice', async (ctx) => {
@@ -106,6 +114,8 @@ bot.command('getprice', async (ctx) => {
 });
 
 bot.hears(['Hey', 'hey', 'hello', 'hi'], ctx => ctx.reply(`A ${ctx.message.text} to you too! 👋`));
+
+bot.hears(['getprice', 'setpair', 'watchlist', 'help'], ctx => ctx.reply(`I think you meant /${ctx.message.text}`));
 
 bot.on('text', (ctx) => {
 	const firstName = getFirstName(ctx);

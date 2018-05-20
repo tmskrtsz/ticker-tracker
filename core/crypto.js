@@ -44,30 +44,9 @@ function getChange(change) {
 	}
 }
 
-async function savePair(chat_id, coin1, coin2) {
-	const [coin1Id] = await findCoin(coin1);
-	const [coin2Id] = await findCoin(coin2);
-
-	const entry = new Watchlist({
-		chat_id: chat_id,
-		coin_1: coin1Id.name,
-		coin_2: coin2Id.name
-	});
-
-	try {
-		await entry.save()
-		console.log(`${entry} was saved!`);
-		return `Cryptopair was saved!`;
-
-	} catch(e) {
-		console.error(`There was a problem: ${e}`)
-	}
-}
-
 module.exports = {
 	getChange,
 	// getPrice,
 	testFiat,
-	testTicker,
-	savePair
+	testTicker
 }
