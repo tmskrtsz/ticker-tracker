@@ -70,7 +70,7 @@ bot.command('setpair', async (ctx) => {
 			await savePair(ctx.chat.id, cryptoPair[0], cryptoPair[1]);
 			ctx.reply(`✅ Done! Hit /watchlist to retrieve your list.`)
 		} catch(e) {
-			ctx.reply('There was a problem');
+			ctx.reply('There was a problem saving the entry.');
 			console.error(e);
 		}
 	}

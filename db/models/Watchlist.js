@@ -4,7 +4,7 @@ const findCoin = require('./Coins.js');
 
 const WatchlistSchema = new Schema({
 	chat_id: {
-		type: Number,
+		type: Array,
 		unique: false,
 		required: [true, "Chatroom ID must be saved"]
 	},
@@ -31,19 +31,43 @@ async function savePair(chat_id, coin1, coin2) {
 	const [coin1Id] = await findCoin(coin1);
 	const [coin2Id] = await findCoin(coin2);
 
-	const entry = new Watchlist({
-		chat_id: chat_id,
-		coin_1: coin1Id.name,
-		coin_2: coin2Id.name
-	});
+	const query = {
+			coin_1: coin1Id.name,
+			coin_2: coin2Id.name
+	}
+
+	const update = {
+		$addToSet: { chat_id: chat_id }
+	}
+
+	let isInDb = false;
 
 	try {
-		await entry.save()
-		console.log(`${entry} was saved!`);
-		return `Cryptopair was saved!`;
+		await Watchlist.findOneAndUpdate(query, update, function(err, result) {
+			if (result) {
+				isInDb = true;
+			}
+		});
 
 	} catch(e) {
-		console.error(`There was a problem: ${e}`)
+		console.error(e);
+	}
+
+	if (!isInDb) {
+		const entry = new Watchlist({
+			chat_id: chat_id,
+			coin_1: coin1Id.name,
+			coin_2: coin2Id.name
+		});
+
+		try {
+			await entry.save()
+			console.log(`${entry} was saved!`);
+			return `Cryptopair was saved!`;
+
+		} catch(e) {
+			console.error(`There was a problem: ${e}`)
+		}
 	}
 }
 
@@ -55,7 +79,7 @@ async function getWatchlist(chat_id) {
 		`;
 
 		const listCollection = watchlistCollection.map(pair => {
-			list += `${pair.coin_1} - ${pair.coin_2}
+			list += ` ${pair.coin_1} - ${pair.coin_2}
 			`;
 		});
 
