@@ -36,6 +36,8 @@ async function savePair(chat_id, coin1, coin2) {
 			coin_2: coin2Id.name
 	}
 
+	// If the crypto pair is already in the database,
+	// add the new chat id to the array to avoid duplications
 	const update = {
 		$addToSet: { chat_id: chat_id }
 	}
@@ -53,6 +55,8 @@ async function savePair(chat_id, coin1, coin2) {
 		console.error(e);
 	}
 
+	return isInDb;
+
 	if (!isInDb) {
 		const entry = new Watchlist({
 			chat_id: chat_id,
@@ -63,12 +67,40 @@ async function savePair(chat_id, coin1, coin2) {
 		try {
 			await entry.save()
 			console.log(`${entry} was saved!`);
-			return `Cryptopair was saved!`;
+			return true;
 
-		} catch(e) {
-			console.error(`There was a problem: ${e}`)
+		} catch(err) {
+			console.error(`There was a problem: ${err}`)
+			return false;
 		}
 	}
+}
+
+async function checkDuplicate(chat_id, coin1, coin2) {
+	const [coin1Id] = await findCoin(coin1);
+	const [coin2Id] = await findCoin(coin2);
+
+	const query = {
+			chat_id: { $in: [chat_id ] },
+			coin_1: coin1Id.name,
+			coin_2: coin2Id.name
+	}
+
+	let result = false;
+
+	const duplicateResult = await Watchlist.find(query);
+	console.log(duplicateResult);
+	if (duplicateResult.err) {
+		console.error(err);
+		return;
+	}
+
+	if (duplicateResult.length > 0) {
+		result = true;
+	}
+
+	return result;
+	// console.log('Watchlist entry: ', findWatchlistEntry);
 }
 
 async function getWatchlist(chat_id) {
@@ -93,5 +125,6 @@ async function getWatchlist(chat_id) {
 module.exports = {
 	Watchlist,
 	savePair,
+	checkDuplicate,
 	getWatchlist
 }

@@ -23,6 +23,7 @@ const {
 const {
 	Watchlist,
 	savePair,
+	checkDuplicate,
 	getWatchlist } = require('./db/models/Watchlist.js');
 
 bot.command('start', (ctx) => {
@@ -66,12 +67,19 @@ bot.command('setpair', async (ctx) => {
 			return;
 		}
 
-		try {
-			await savePair(ctx.chat.id, cryptoPair[0], cryptoPair[1]);
+		const isDuplicate = await checkDuplicate(ctx.chat.id, cryptoPair[0], cryptoPair[1]);
+
+		if (isDuplicate) {
+			ctx.reply('⚠️ You already saved this pair once. Check /watchlist for your full list.')
+			return;
+		}
+
+		const savePairResponse = await savePair(ctx.chat.id, cryptoPair[0], cryptoPair[1]);
+
+		if (!savePairResponse) {
+			ctx.reply('⚠️ There was a problem saving the entry.');
+		} else {
 			ctx.reply(`✅ Done! Hit /watchlist to retrieve your list.`)
-		} catch(e) {
-			ctx.reply('There was a problem saving the entry.');
-			console.error(e);
 		}
 	}
 });
