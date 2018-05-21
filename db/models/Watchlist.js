@@ -55,7 +55,7 @@ async function savePair(chat_id, coin1, coin2) {
 		console.error(e);
 	}
 
-	return isInDb;
+	if (isInDb) return isInDb;
 
 	if (!isInDb) {
 		const entry = new Watchlist({
@@ -89,7 +89,7 @@ async function checkDuplicate(chat_id, coin1, coin2) {
 	let result = false;
 
 	const duplicateResult = await Watchlist.find(query);
-	console.log(duplicateResult);
+
 	if (duplicateResult.err) {
 		console.error(err);
 		return;
@@ -100,12 +100,11 @@ async function checkDuplicate(chat_id, coin1, coin2) {
 	}
 
 	return result;
-	// console.log('Watchlist entry: ', findWatchlistEntry);
 }
 
 async function getWatchlist(chat_id) {
 	try {
-		const watchlistCollection = await Watchlist.find({ chat_id: { $in: chat_id } });
+		const watchlistCollection = await Watchlist.find({ chat_id: { $in: [ chat_id ] } });
 
 		let list = `
 		`;
